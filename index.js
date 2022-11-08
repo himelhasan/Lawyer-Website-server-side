@@ -19,11 +19,24 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+
+async function run() {
+  try {
+    const reviewsCollection = client
+      .db("photographerReview")
+      .collection("reviewsOfPhotographyService");
+
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+  } finally {
+  }
+}
+
+run().catch((err) => console.log(err));
 
 app.get("/", (req, res) => {
   res.send("Photographer car server is running");
