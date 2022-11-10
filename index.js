@@ -21,12 +21,15 @@ async function run() {
     const servicesCollection = client.db("lawyerServices").collection("allServices");
     const allReviewsCollection = client.db("lawyerServices").collection("reviews");
 
+    // three services for home
     app.get("/services", async (req, res) => {
       const query = {};
       const cursor = servicesCollection.find(query);
       const services = await cursor.limit(3).toArray();
       res.send(services);
     });
+
+    // all services
 
     app.get("/allservices", async (req, res) => {
       const page = req.query.page;
@@ -40,12 +43,14 @@ async function run() {
       const count = await servicesCollection.estimatedDocumentCount();
       res.send({ count, services });
     });
+    // services api to create new service
 
     app.post("/services", async (req, res) => {
       const service = req.body;
       const result = await servicesCollection.insertOne(service);
       res.send(result);
     });
+    // services api to get id basis services
 
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
@@ -55,13 +60,13 @@ async function run() {
     });
 
     // reviews collection
-
+    // create new review
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await allReviewsCollection.insertOne(review);
       res.send(result);
     });
-
+    // get reviews
     app.get("/reviews", async (req, res) => {
       let query = {};
       if (req.query.serviceId) {
@@ -74,6 +79,7 @@ async function run() {
       res.send(result);
     });
 
+    // reviuews querty according to email
     app.get("/myReviews", async (req, res) => {
       let query = {};
       if (req.query.email) {
