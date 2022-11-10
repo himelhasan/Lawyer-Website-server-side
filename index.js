@@ -28,6 +28,12 @@ async function run() {
       res.send(reviews);
     });
 
+    app.post("/services", async (req, res) => {
+      const service = req.body;
+      const result = await servicesCollection.insertOne(service);
+      res.send(result);
+    });
+
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -40,6 +46,18 @@ async function run() {
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await allReviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      let query = {};
+      if (req.query.serviceId) {
+        query = {
+          serviceId: req.query.serviceId,
+        };
+      }
+      const cursor = allReviewsCollection.find(query);
+      const result = await cursor.toArray();
       res.send(result);
     });
 
