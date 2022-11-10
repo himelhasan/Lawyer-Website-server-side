@@ -18,13 +18,12 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const reviewsCollection = client
-      .db("photographerReview")
-      .collection("reviewsOfPhotographyService");
+    const servicesCollection = client.db("lawyerServices").collection("allServices");
+    const allReviewsCollection = client.db("lawyerServices").collection("reviews");
 
     app.get("/services", async (req, res) => {
       const query = {};
-      const cursor = reviewsCollection.find(query);
+      const cursor = servicesCollection.find(query);
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
@@ -32,8 +31,30 @@ async function run() {
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const service = await reviewsCollection.findOne(query);
+      const service = await servicesCollection.findOne(query);
       res.send(service);
+    });
+
+    // reviews collection
+
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await allReviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      let query = {};
+
+      if (req.query.email) {
+        query = {
+          userEmail: req.query.email,
+        };
+      }
+
+      const cursor = allReviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
     });
   } finally {
   }
