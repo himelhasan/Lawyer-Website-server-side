@@ -24,8 +24,21 @@ async function run() {
     app.get("/services", async (req, res) => {
       const query = {};
       const cursor = servicesCollection.find(query);
-      const reviews = await cursor.toArray();
-      res.send(reviews);
+      const services = await cursor.limit(3).toArray();
+      res.send(services);
+    });
+
+    app.get("/allservices", async (req, res) => {
+      const page = req.query.page;
+      const size = parseInt(req.query.size);
+      const query = {};
+      const cursor = servicesCollection.find(query);
+      const services = await cursor
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      const count = await servicesCollection.estimatedDocumentCount();
+      res.send({ count, services });
     });
 
     app.post("/services", async (req, res) => {
